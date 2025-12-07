@@ -1,10 +1,10 @@
-from __future__ import annotations
 
-from typing import Any, Callable, MutableMapping, TypeVar
+from collections.abc import Callable, MutableMapping
+from typing import Any, Self, TypeAlias, TypeVar
 
 __all__ = ["BaseModel", "ConfigDict", "Field", "ValidationError", "field_validator"]
 
-ConfigDict = dict[str, Any]
+ConfigDict: TypeAlias = dict[str, Any]
 
 class ValidationError(Exception): ...
 
@@ -13,11 +13,13 @@ class BaseModel:
     def dict(
         self, *, by_alias: bool = ..., exclude_none: bool = ...
     ) -> MutableMapping[str, object]: ...
+    def model_dump(self) -> dict[str, object]: ...
     @classmethod
-    def model_validate(cls: type[_ModelT], obj: object) -> _ModelT: ...
+    def model_validate(cls, obj: object) -> Self: ...
+    def __getattr__(self, name: str) -> object: ...
 
 _T = TypeVar("_T")
-_ModelT = TypeVar("_ModelT", bound="BaseModel")
+_ModelT = TypeVar("_ModelT", bound=BaseModel)
 
 def Field(*args: object, **kwargs: object) -> Any: ...
 def field_validator(

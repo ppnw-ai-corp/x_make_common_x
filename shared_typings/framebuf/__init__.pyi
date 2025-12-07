@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 class FrameBuffer:
     def __init__(

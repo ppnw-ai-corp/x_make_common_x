@@ -1,4 +1,4 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 
 DEFAULT_PERSONA_PROMPT: str
 
@@ -6,7 +6,7 @@ class PersonaPromptError(ValueError): ...
 
 def format_persona_question(
     persona_id: str,
-    template: str = DEFAULT_PERSONA_PROMPT,
+    template: str = ...,
 ) -> str: ...
 def extract_answer_text(response: Mapping[str, object]) -> str: ...
 def extract_tags(response: Mapping[str, object]) -> tuple[str, ...]: ...

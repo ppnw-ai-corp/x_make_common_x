@@ -1,15 +1,14 @@
-from __future__ import annotations
 
 __all__ = [
     "QObject",
     "QPoint",
-    "QSize",
     "QRunnable",
+    "QSize",
     "QThread",
     "QThreadPool",
-    "Signal",
     "QTimer",
     "Qt",
+    "Signal",
 ]
 
 class Signal:

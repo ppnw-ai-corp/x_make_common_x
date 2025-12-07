@@ -1,6 +1,6 @@
+from collections.abc import Mapping, MutableMapping
 from datetime import datetime
 from pathlib import Path
-from collections.abc import Mapping, MutableMapping
 
 REPORTS_DIR_NAME: str
 TIMESTAMP_FILENAME_FORMAT: str

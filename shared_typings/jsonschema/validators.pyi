@@ -1,6 +1,5 @@
-from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 
 __all__ = ["Draft202012Validator"]
 

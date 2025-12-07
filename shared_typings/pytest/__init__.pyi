@@ -1,25 +1,22 @@
-from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from types import ModuleType
 from typing import (
-    Callable,
     Generic,
     NoReturn,
     ParamSpec,
-    Sequence,
-    Tuple,
     TypeVar,
     overload,
 )
 
 __all__ = [
-    "MonkeyPatch",
     "CaptureFixture",
+    "MonkeyPatch",
     "fixture",
     "importorskip",
     "mark",
-    "skip",
     "raises",
+    "skip",
 ]
 
 class MonkeyPatch:
@@ -54,7 +51,7 @@ class _MarkDecorator:
     def parametrize(
         self,
         argnames: str | Sequence[str],
-        argvalues: Sequence[Tuple[object, ...] | object],
+        argvalues: Sequence[tuple[object, ...] | object],
         *,
         ids: Sequence[str] | None = ...,
         indirect: bool | Sequence[str] = ...,
@@ -64,7 +61,7 @@ class _MarkModule:
     def parametrize(
         self,
         argnames: str | Sequence[str],
-        argvalues: Sequence[Tuple[object, ...] | object],
+        argvalues: Sequence[tuple[object, ...] | object],
         *,
         ids: Sequence[str] | None = ...,
         indirect: bool | Sequence[str] = ...,

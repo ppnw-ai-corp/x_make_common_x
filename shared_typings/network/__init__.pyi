@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 STA_IF: int
 

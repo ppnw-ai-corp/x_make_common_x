@@ -1,4 +1,5 @@
-from typing import Any, Callable, Mapping, Sequence, Self
+from collections.abc import Callable, Mapping, Sequence
+from typing import Any, Self
 
 class Element:
     value: Any
@@ -79,10 +80,10 @@ class _UiModule:
     def number(
         self,
         label: str | None = ...,
-        value: float | int | None = ...,
-        min: float | int | None = ...,
-        max: float | int | None = ...,
-        step: float | int | None = ...,
+        value: float | None = ...,
+        min: float | None = ...,
+        max: float | None = ...,
+        step: float | None = ...,
     ) -> Number: ...
     def log(self) -> Log: ...
     def label(self, text: str) -> Label: ...

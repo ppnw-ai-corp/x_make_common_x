@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 class _Hash:
     def update(self, data: bytes | bytearray) -> None: ...

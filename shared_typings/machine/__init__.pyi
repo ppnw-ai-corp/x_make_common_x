@@ -1,14 +1,12 @@
-from __future__ import annotations
 
-from typing import Optional
 
 class Pin:
     IN: int
     OUT: int
     PULL_UP: int
 
-    def __init__(self, id: int, mode: int, pull: Optional[int] = ...) -> None: ...
-    def value(self, value: Optional[int] = ...) -> int: ...
+    def __init__(self, id: int, mode: int, pull: int | None = ...) -> None: ...
+    def value(self, value: int | None = ...) -> int: ...
 
 class I2C:
     def __init__(self, id: int, *, scl: Pin, sda: Pin, freq: int) -> None: ...

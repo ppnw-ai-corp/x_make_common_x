@@ -1,6 +1,5 @@
-from __future__ import annotations
 
-from typing import Any, IO
+from typing import IO, Any
 
 def dumps(obj: Any) -> str: ...
 def dump(obj: Any, fp: IO[str]) -> None: ...

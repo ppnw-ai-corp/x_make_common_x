@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 __all__ = [
     "QColor",
@@ -16,7 +15,7 @@ class QFont:
 
 class QPainter:
     class RenderHint(int):
-        Antialiasing: "QPainter.RenderHint"
+        Antialiasing: QPainter.RenderHint
 
     Antialiasing: int
 
@@ -34,11 +33,11 @@ class QPixmap:
     def isNull(self) -> bool: ...
     def scaled(
         self,
-        width_or_size: int | float | object,
+        width_or_size: float | object,
         height: int | None = ...,
         aspectMode: int | None = ...,
         transformMode: int | None = ...,
-    ) -> "QPixmap": ...
+    ) -> QPixmap: ...
 
 class QTextCursor:
     End: int

@@ -1,14 +1,13 @@
-from __future__ import annotations
 
-from typing import Callable, Mapping, MutableMapping, Sequence
+from collections.abc import Callable, Mapping, MutableMapping, Sequence
 
 __all__ = [
+    "URL",
     "AsyncClient",
     "MockTransport",
     "Request",
     "RequestError",
     "Response",
-    "URL",
 ]
 
 class RequestError(Exception):
@@ -45,7 +44,7 @@ class AsyncClient:
 
 class Request:
     method: str
-    url: "URL"
+    url: URL
     headers: Mapping[str, str] | None
     content: bytes
 
@@ -60,7 +59,6 @@ class Request:
 
 class URL:
     def __init__(self, url: str) -> None: ...
-    def __str__(self) -> str: ...
 
 class MockTransport:
     def __init__(

@@ -1,6 +1,5 @@
-from __future__ import annotations
 
-from machine import Pin, SPI
+from machine import SPI, Pin
 
 class ST7789:
     def __init__(
