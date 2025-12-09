@@ -1,4 +1,3 @@
-
 from collections.abc import Callable, Sequence
 from types import ModuleType
 from typing import (

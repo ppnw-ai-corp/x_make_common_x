@@ -1,4 +1,3 @@
-
 from collections.abc import Callable, MutableMapping
 from typing import Any, Self, TypeAlias, TypeVar
 

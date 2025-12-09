@@ -1,4 +1,3 @@
-
 class FrameBuffer:
     def __init__(
         self, buffer: bytearray, width: int, height: int, format: int

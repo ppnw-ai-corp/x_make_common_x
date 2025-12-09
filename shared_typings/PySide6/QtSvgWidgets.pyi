@@ -1,4 +1,3 @@
-
 from .QtWidgets import QGraphicsItem
 
 __all__ = ["QGraphicsSvgItem"]

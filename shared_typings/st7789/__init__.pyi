@@ -1,4 +1,3 @@
-
 from machine import SPI, Pin
 
 class ST7789:

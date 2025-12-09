@@ -1,5 +1,3 @@
-
-
 class Pin:
     IN: int
     OUT: int

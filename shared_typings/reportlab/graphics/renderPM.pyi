@@ -1,4 +1,3 @@
-
 __all__ = ["drawToFile"]
 
 def drawToFile(drawing: object, filename: str, fmt: str = ...) -> None: ...

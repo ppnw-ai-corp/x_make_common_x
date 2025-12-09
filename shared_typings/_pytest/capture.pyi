@@ -1,4 +1,3 @@
-
 from typing import Generic, TypeVar
 
 __all__ = ["CaptureFixture", "CaptureResult"]

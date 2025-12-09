@@ -1,4 +1,3 @@
-
 STA_IF: int
 
 class WLAN:

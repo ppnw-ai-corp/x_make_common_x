@@ -1,4 +1,3 @@
-
 from typing import IO, Any
 
 def dumps(obj: Any) -> str: ...

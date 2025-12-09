@@ -8,7 +8,6 @@ class Config:
 
     def __init__(self, app: object, **kwargs: object) -> None: ...
 
-
 def run(
     app: _ASGIApp | object,
     host: str = ...,

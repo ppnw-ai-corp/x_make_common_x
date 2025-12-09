@@ -1,4 +1,3 @@
-
 from collections.abc import Mapping
 
 __all__ = ["Draft202012Validator"]
