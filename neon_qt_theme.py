@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
 from typing import Any, cast
 
@@ -296,13 +297,14 @@ QScrollBar::handle:horizontal:hover, QScrollBar::handle:vertical:hover {{
 
 
 class PalettePicker(QtWidgets.QFrame):
-    """Compact 4x4 neon palette grid with kawaii-inspired labels."""
+    """Compact single-row neon palette with kawaii-inspired labels."""
 
     def __init__(self, theme: NeonTheme, parent: object | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("PalettePickerFrame")
         self._theme = theme
-        self._buttons: list[QtWidgets.QToolButton] = []
+        self._buttons_by_index: dict[int, QtWidgets.QToolButton] = {}
+        self._swatch_order: tuple[int, ...] = ()
         self._selection_label = QtWidgets.QLabel()
         self._build_layout()
         self._theme.theme_changed.connect(self._sync_from_theme)
@@ -322,25 +324,35 @@ class PalettePicker(QtWidgets.QFrame):
         header.addWidget(self._selection_label)
         layout.addLayout(header)
 
-        grid = QtWidgets.QGridLayout()
-        grid.setSpacing(6)
-        for index, swatch in enumerate(self._theme.swatches()):
+        row = QtWidgets.QHBoxLayout()
+        row.setSpacing(6)
+        row.setContentsMargins(0, 0, 0, 0)
+
+        swatches = self._theme.swatches()
+        indices = list(range(len(swatches)))
+        random.Random().shuffle(indices)
+        self._swatch_order = tuple(indices)
+        for swatch_index in self._swatch_order:
+            swatch = swatches[swatch_index]
             button = QtWidgets.QToolButton()
             button.setCheckable(True)
             button.setAutoExclusive(True)
             button.setFixedSize(30, 30)
             button.setToolTip(swatch.name)
             button.clicked.connect(  # type: ignore[attr-defined]
-                lambda _checked=False, idx=index: self._theme.set_accent_index(idx)
+                lambda _checked=False, idx=swatch_index: self._theme.set_accent_index(idx)
             )
-            self._buttons.append(button)
-            grid.addWidget(button, index // 4, index % 4)
-        layout.addLayout(grid)
+            self._buttons_by_index[swatch_index] = button
+            row.addWidget(button)
+        layout.addLayout(row)
         self.setLayout(layout)
 
     def _sync_from_theme(self, _accent_hex: str) -> None:
         self._selection_label.setText(self._theme.accent_name())
-        for index, (button, swatch) in enumerate(zip(self._buttons, self._theme.swatches())):
+        for index, swatch in enumerate(self._theme.swatches()):
+            button = self._buttons_by_index.get(index)
+            if button is None:
+                continue
             active = index == self._theme.accent_index()
             border = self._theme.accent_outline_rgba() if active else "rgba(255, 255, 255, 0.2)"
             button.setChecked(active)
