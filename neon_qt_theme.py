@@ -4,22 +4,40 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-from typing import Any, cast
+from functools import partial
+from typing import Any, TypeAlias, cast
 
 from x_make_common_x.neon_palette import load_neon_palette
+
+_PYSIDE_REQUIRED_MESSAGE = (
+    "PySide6 is required for neon_qt_theme; install it before importing this module."
+)
+_MISSING_SWATCHES_MESSAGE = "neon palette does not define any swatches"
 
 try:  # pragma: no cover - PySide6 availability depends on workstation
     import PySide6.QtCore as _QtCoreRaw
     import PySide6.QtGui as _QtGuiRaw
     import PySide6.QtWidgets as _QtWidgetsRaw
 except ModuleNotFoundError as exc:  # pragma: no cover - surfaced at the UI entrypoint
-    raise RuntimeError(
-        "PySide6 is required for neon_qt_theme; install it before importing this module."
-    ) from exc
+    raise RuntimeError(_PYSIDE_REQUIRED_MESSAGE) from exc
 
 QtCore = cast("Any", _QtCoreRaw)
 QtGui = cast("Any", _QtGuiRaw)
 QtWidgets = cast("Any", _QtWidgetsRaw)
+
+QColorType: TypeAlias = Any
+
+_SURFACE_01_DEFAULT = "#03060f"
+_SURFACE_02_DEFAULT = "#050a16"
+_SURFACE_03_DEFAULT = "#0a0f21"
+_HEADER_DEFAULT = "#0a152d"
+_GRIDLINE_DEFAULT = "rgba(255, 255, 255, 0.08)"
+_BORDER_DEFAULT = "rgba(255, 255, 255, 0.45)"
+_PRIMARY_TEXT_DEFAULT = "#f5f6ff"
+_MUTED_TEXT_DEFAULT = "#b3c1ff"
+_SCROLL_TRACK_DEFAULT = "#0b1124"
+_ACCENT_SELECTION_DEFAULT = "rgba(255, 255, 255, 0.25)"
+_ACCENT_OUTLINE_DEFAULT = "rgba(255, 255, 255, 0.45)"
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,37 +57,43 @@ class NeonTheme(QtCore.QObject):
         super().__init__()
         palette = load_neon_palette()
         self._palette = palette
-        self._background_hex = palette.role_value("surface_01", "#03060f") or "#03060f"
-        self._surface_hex = palette.role_value("surface_02", "#050a16") or "#050a16"
-        self._surface_alt_hex = palette.role_value("surface_03", "#0a0f21") or "#0a0f21"
-        self._header_hex = palette.role_value("surface_header", "#0a152d") or "#0a152d"
-        self._gridline_hex = palette.role_value("gridlines", "rgba(255, 255, 255, 0.08)") or "rgba(255, 255, 255, 0.08)"
-        self._border_hex = palette.role_value("outline", "rgba(255, 255, 255, 0.45)") or "rgba(255, 255, 255, 0.45)"
-        self._text_primary = palette.role_value("text_primary", "#f5f6ff") or "#f5f6ff"
-        self._text_muted = palette.role_value("text_secondary", "#b3c1ff") or "#b3c1ff"
-        self._scroll_track_hex = palette.role_value("scroll_track", "#0b1124") or "#0b1124"
+
+        def resolve(role: str, default: str) -> str:
+            return palette.role_value(role, default) or default
+
+        self._background_hex = resolve("surface_01", _SURFACE_01_DEFAULT)
+        self._surface_hex = resolve("surface_02", _SURFACE_02_DEFAULT)
+        self._surface_alt_hex = resolve("surface_03", _SURFACE_03_DEFAULT)
+        self._header_hex = resolve("surface_header", _HEADER_DEFAULT)
+        self._gridline_hex = resolve("gridlines", _GRIDLINE_DEFAULT)
+        self._border_hex = resolve("outline", _BORDER_DEFAULT)
+        self._text_primary = resolve("text_primary", _PRIMARY_TEXT_DEFAULT)
+        self._text_muted = resolve("text_secondary", _MUTED_TEXT_DEFAULT)
+        self._scroll_track_hex = resolve("scroll_track", _SCROLL_TRACK_DEFAULT)
         self._swatches: tuple[NeonSwatch, ...] = tuple(
             NeonSwatch(entry.name, entry.hex_value) for entry in palette.swatches
         )
         if not self._swatches:
-            raise RuntimeError("neon palette does not define any swatches")
+            raise RuntimeError(_MISSING_SWATCHES_MESSAGE)
         self._accent_index = 0
         self._style_sheet = ""
-        self._state_backgrounds: dict[str, QtGui.QColor] = {}
-        self._state_text: dict[str, QtGui.QColor] = {}
+        self._state_backgrounds: dict[str, QColorType] = {}
+        self._state_text: dict[str, QColorType] = {}
         self._accent_hex = self._swatches[self._accent_index].hex_value
         self._accent_glow_hex = self._accent_hex
         self._accent_dim_hex = self._accent_hex
         self._accent_soft_hex = self._accent_hex
         self._accent_panel_hex = self._accent_hex
-        self._accent_bloom_rgba = self._rgba_string(QtGui.QColor(self._accent_hex), 0.45)
+        self._accent_bloom_rgba = self._rgba_string(
+            QtGui.QColor(self._accent_hex), 0.45
+        )
         self._accent_halo_rgba = self._rgba_string(QtGui.QColor(self._accent_hex), 0.15)
-        self._accent_selection_rgba = "rgba(255, 255, 255, 0.25)"
-        self._accent_outline_rgba = "rgba(255, 255, 255, 0.45)"
+        self._accent_selection_rgba = _ACCENT_SELECTION_DEFAULT
+        self._accent_outline_rgba = _ACCENT_OUTLINE_DEFAULT
         self._build_palette()
 
     @staticmethod
-    def _mix(color_a: QtGui.QColor, color_b: QtGui.QColor, ratio: float) -> QtGui.QColor:
+    def _mix(color_a: QColorType, color_b: QColorType, ratio: float) -> QColorType:
         clamped = max(0.0, min(1.0, ratio))
         inverse = 1.0 - clamped
         red = int(color_a.red() * clamped + color_b.red() * inverse)
@@ -78,7 +102,7 @@ class NeonTheme(QtCore.QObject):
         return QtGui.QColor(red, green, blue)
 
     @staticmethod
-    def _rgba_string(color: QtGui.QColor, alpha: float) -> str:
+    def _rgba_string(color: QColorType, alpha: float) -> str:
         clamped = max(0.0, min(1.0, alpha))
         alpha_255 = int(clamped * 255)
         return f"rgba({color.red()}, {color.green()}, {color.blue()}, {alpha_255})"
@@ -100,8 +124,16 @@ class NeonTheme(QtCore.QObject):
         self._state_backgrounds = {
             "unknown": self._mix(QtGui.QColor("#141c33"), accent, 0.15),
             "passed": self._mix(accent, night, 0.35),
-            "failed": self._mix(QtGui.QColor("#ff3b6a"), QtGui.QColor("#1c0715"), 0.2),
-            "skipped": self._mix(QtGui.QColor("#1a2238"), QtGui.QColor("#2d3148"), 0.5),
+            "failed": self._mix(
+                QtGui.QColor("#ff3b6a"),
+                QtGui.QColor("#1c0715"),
+                0.2,
+            ),
+            "skipped": self._mix(
+                QtGui.QColor("#1a2238"),
+                QtGui.QColor("#2d3148"),
+                0.5,
+            ),
         }
         self._state_text = {
             "unknown": QtGui.QColor("#a8b4ff"),
@@ -280,10 +312,10 @@ QScrollBar::handle:horizontal:hover, QScrollBar::handle:vertical:hover {{
     def glow_hex(self) -> str:
         return self._accent_glow_hex
 
-    def cell_background(self, state: str) -> QtGui.QColor:
+    def cell_background(self, state: str) -> QColorType:
         return self._state_backgrounds.get(state, self._state_backgrounds["unknown"])
 
-    def cell_text(self, state: str) -> QtGui.QColor:
+    def cell_text(self, state: str) -> QColorType:
         return self._state_text.get(state, QtGui.QColor(self._text_primary))
 
     def set_accent_index(self, index: int) -> None:
@@ -303,7 +335,7 @@ class PalettePicker(QtWidgets.QFrame):
         super().__init__(parent)
         self.setObjectName("PalettePickerFrame")
         self._theme = theme
-        self._buttons_by_index: dict[int, QtWidgets.QToolButton] = {}
+        self._buttons_by_index: dict[int, Any] = {}
         self._swatch_order: tuple[int, ...] = ()
         self._selection_label = QtWidgets.QLabel()
         self._build_layout()
@@ -330,7 +362,7 @@ class PalettePicker(QtWidgets.QFrame):
 
         swatches = self._theme.swatches()
         indices = list(range(len(swatches)))
-        random.Random().shuffle(indices)
+        random.SystemRandom().shuffle(indices)
         self._swatch_order = tuple(indices)
         for swatch_index in self._swatch_order:
             swatch = swatches[swatch_index]
@@ -340,7 +372,7 @@ class PalettePicker(QtWidgets.QFrame):
             button.setFixedSize(30, 30)
             button.setToolTip(swatch.name)
             button.clicked.connect(  # type: ignore[attr-defined]
-                lambda _checked=False, idx=swatch_index: self._theme.set_accent_index(idx)
+                partial(self._theme.set_accent_index, swatch_index)
             )
             self._buttons_by_index[swatch_index] = button
             row.addWidget(button)
@@ -354,7 +386,11 @@ class PalettePicker(QtWidgets.QFrame):
             if button is None:
                 continue
             active = index == self._theme.accent_index()
-            border = self._theme.accent_outline_rgba() if active else "rgba(255, 255, 255, 0.2)"
+            border = (
+                self._theme.accent_outline_rgba()
+                if active
+                else "rgba(255, 255, 255, 0.2)"
+            )
             button.setChecked(active)
             button.setStyleSheet(
                 f"""
